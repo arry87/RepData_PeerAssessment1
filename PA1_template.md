@@ -1,12 +1,8 @@
----
-title: "Reproducible Research: Peer Assessment 1"
-output: 
-  html_document:
-    keep_md: true
----
+# Reproducible Research: Peer Assessment 1
 
 ## Loading required libraries
-```{r}
+
+```r
 library(stringr)
 library(lubridate)
 ```
@@ -15,15 +11,18 @@ library(lubridate)
 ## Loading and preprocessing the data
 
 - Assign a filename
-```{r}
+
+```r
 filename <- "activity/activity.csv"
 ```
 - Read data using the read.csv() function
-```{r}
+
+```r
 Data <- read.csv(filename, header = TRUE)
 ```
 - Remove all the NAs from the 'Data' and create a new data frame called Data2.
-```{r}
+
+```r
 Data2 <- Data[complete.cases(Data), ]
 ```
 
@@ -31,18 +30,28 @@ Data2 <- Data[complete.cases(Data), ]
 ## What is mean total number of steps taken per day?
 
 - Split the 'Data2' dataframe by the date as follows:
-```{r}
+
+```r
 spData2 <- split(Data2$steps, Data2$date)
 ```
 - Apply sapply to determine the sum of steps taken per day as follows:
-```{r}
+
+```r
 sum.of.steps.per.day <- sapply(spData2, sum) 
 summary(sum.of.steps.per.day)
 ```
+
+```
+##    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+##       0    6778   10400    9354   12810   21190
+```
 - Histogram plot of total steps per day is as follows:
-```{r}
+
+```r
 hist(sum.of.steps.per.day)
 ```
+
+![](PA1_template_files/figure-html/unnamed-chunk-7-1.png) 
 
 
 
@@ -54,26 +63,41 @@ hist(sum.of.steps.per.day)
 
 
 - Mean and median of total number of steps taken per day is calculated as follows:
-```{r}
+
+```r
 mean.steps <- mean(sum.of.steps.per.day)
 median.steps <- median(sum.of.steps.per.day)
 mean.steps
+```
+
+```
+## [1] 9354.23
+```
+
+```r
 median.steps
+```
+
+```
+## [1] 10395
 ```
 
 
 ## What is the average daily activity pattern?
 
 - First split the 'Data2' data frame by the 'interval' variable as follows: 
-```{r}
+
+```r
 spData2 <- split(Data2$steps, Data2$interval)
 ```
 - Next, calculate the mean of the steps per interval to get a daily activity pattern as follows:
-```{r}
+
+```r
 steps.per.interval <- sapply(spData2, mean)
 ```
 - The following code chuck will convert the 'interval' variable into a date class (useful for plotting activity pattern)
-```{r}
+
+```r
 y <- as.numeric(names(steps.per.interval)) 
 
 mins <- vector("character", length(y))
@@ -110,9 +134,12 @@ for (i in 1:length(y)) {
 Time <- strptime(time, "%H:%M:%S")
 ```
 - Next, plot the activity pattern with interval on the x axis and the average steps in that interval on the y-axis using base plot as follows:
-```{r}
+
+```r
 plot(Time, steps.per.interval, type="l", main = "Average daily activity pattern", ylab = "Avg. no. of steps over 2 month period")
 ```
+
+![](PA1_template_files/figure-html/unnamed-chunk-12-1.png) 
 
 
 
@@ -124,7 +151,8 @@ plot(Time, steps.per.interval, type="l", main = "Average daily activity pattern"
 
 
 - Next, try to identify in which interval activity is maximum as follows: 
-```{r}
+
+```r
 ind <- which(steps.per.interval == max(steps.per.interval))
 time_max <- names(steps.per.interval[ind])
 if(nchar(time_max) == 2) {
@@ -137,15 +165,25 @@ if(nchar(time_max) == 2) {
 print(result)
 ```
 
+```
+## [1] "08:35"
+```
+
 
 ## Imputing missing values
 - Number of missing values in the dataset is evaluated as follows:
-```{r}
+
+```r
 Num.missing.values <- length(which(is.na(Data$steps)))
 print(Num.missing.values)
 ```
+
+```
+## [1] 2304
+```
 - The strategy to fill in missing values is to use the average daily activity data. There are a fixed number of recordings at exactly the same time intervals daily. We use the following code chunk to assign the mean value at that time interval in case of a missing vaule: 
-```{r}
+
+```r
 for (i in 1:length(Data$steps))  {
   
     if (is.na(Data$steps[i])) {
@@ -168,67 +206,92 @@ for (i in 1:length(Data$steps))  {
 }
 ```
 - We can cross check if this worked by calculating number of missing values again. 
-```{r}
+
+```r
 length(which(is.na(Data$steps)))
+```
+
+```
+## [1] 0
 ```
 ## Are there differences in activity patterns between weekdays and weekends?
 To find this out, we first write a code chunk determining whether a given day is a weekday or a weekend. 
 
 - The following code stores the indices of the weekdays and weekends in the data set.
-```{r}
+
+```r
 y <- as.Date(Data$date)
 inds.wkends <- which(weekdays(y) == "Saturday" | weekdays(y) == "Sunday")
 inds.wkdays <- which(weekdays(y) != "Saturday" & weekdays(y) != "Sunday")
 ```
 - The next natural step is to create a variable 'daytype' which can assign either a 'weekday' or a 'weekend' depending on the indices computed above. The first line creates the variable. The second and third lines assigns the value.
-```{r}
+
+```r
 daytype <- vector("character", length(y))
 daytype[inds.wkdays] = "Weekdays"
 daytype[inds.wkends] = "weekends"
 ```
 - Now we're ready to create a data frame with the above variable and append it to the original data frame by using the cbind() function. We call the new data frame Data.V2. The code is presented as follows.
-```{r}
+
+```r
 dayType <- data.frame(daytype = daytype)
 Data.V2 <- cbind(Data, dayType)
 ```
 - Since we need to treat weekdays and weekends separately, we coerce the 'daytime' variable to the type 'factor'. This is done as follows:
-```{r}
+
+```r
 Data.V2$daytype <- as.factor(Data.V2$daytype)
 ```
 - The next piece of code is to obtain a very rough estimate to see if average steps covered is greater over the weekdays or weekends. It is a simple average of the data after splitting into two pieces - weekdays and weekends.
-```{r}
+
+```r
 spData3 <- split(Data.V2$steps, Data.V2$daytype)
 mean.daytype <- sapply(spData3, mean)
 print(mean.daytype)
 ```
 
+```
+## Weekdays weekends 
+## 35.61058 42.36640
+```
+
 - The next part of code will check the average activity over the intervals averaged on all the days. The difference from the previously presented plot is that we treat weekdays and weekends separately. So, the natural step to proceed is to first split the entire data set into two chunks: weekdays, and weekends. Here's the code for it.
-```{r}
+
+```r
 spData4 <- split(Data.V2, Data.V2$daytype)
 names(spData4)
 ```
 
+```
+## [1] "Weekdays" "weekends"
+```
+
 - So next, we assign the weekday data frame to weekd, and then split the $steps variable with the interval. An average over all the weekdays will give us the activity data per interval in the weekdays. 
 
-```{r}
+
+```r
 weekd <- spData4[[1]]
 spData5 <- split(weekd$steps, weekd$interval)
 avg.wd.interval <- sapply(spData5, mean) 
 ```
 
 - A similar story follows for the weekends. Exactly the same steps as above for the weekends as well.
-```{r}
+
+```r
 weeknd <- spData4[[2]]
 spData6 <- split(weeknd$steps, weeknd$interval)
 avg.wnd.interval <- sapply(spData6, mean)
 ```
 
 - The last and final part is to plot the data. This is done with the following code:
-```{r}
+
+```r
 par(mfrow = c(2,1), mar = c(2,4,2,2) + 0.1)
 plot(Time, avg.wd.interval, type = "l", main = "Weekdays", cex.main = 0.9, ylim = c(0,250), ylab = "Average steps over 2 months", cex.lab = 0.7, cex.axis = 0.7, xlab = "Interval")
 plot(Time, avg.wnd.interval, type = "l", main = "Weekends", cex.main= 0.9, ylim = c(0,250), ylab = "Average steps over 2 months", cex.lab = 0.7, cex.axis = 0.7, xlab = "Interval")
 ```
+
+![](PA1_template_files/figure-html/unnamed-chunk-25-1.png) 
 
 
 
