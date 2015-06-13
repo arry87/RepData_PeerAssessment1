@@ -214,6 +214,29 @@ length(which(is.na(Data$steps)))
 ```
 ## [1] 0
 ```
+
+
+We now plot a histogram of the steps taken per day. 
+
+
+```r
+spData <- split(Data$steps, Data$date)
+sum.of.steps.per.day <- sapply(spData, mean)
+summary(sum.of.steps.per.day)
+```
+
+```
+##    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+##  0.1424 34.0900 37.3800 37.3800 44.4800 73.5900
+```
+
+```r
+hist(sum.of.steps.per.day)
+```
+
+![](PA1_template_files/figure-html/unnamed-chunk-17-1.png) 
+
+
 ## Are there differences in activity patterns between weekdays and weekends?
 To find this out, we first write a code chunk determining whether a given day is a weekday or a weekend. 
 
@@ -291,10 +314,12 @@ plot(Time, avg.wd.interval, type = "l", main = "Weekdays", cex.main = 0.9, ylim 
 plot(Time, avg.wnd.interval, type = "l", main = "Weekends", cex.main= 0.9, ylim = c(0,250), ylab = "Average steps over 2 months", cex.lab = 0.7, cex.axis = 0.7, xlab = "Interval")
 ```
 
-![](PA1_template_files/figure-html/unnamed-chunk-25-1.png) 
+![](PA1_template_files/figure-html/unnamed-chunk-26-1.png) 
 
 
 
 
 So, there is one apparent difference in the activity pattern between weekdays and weekends. In the weekdays, the number of steps per day peaks early in the day at about 08:30. And the rest of the day is rather low. However, over the weekends, the number of steps is more or less more evenly distributed through the middle part of the day. One possible explanation for the activity pattern in the weekdays could be travelling to the workplace or institute, which results in a peaking. While in the weekends, no more going to office. But, perhaps other personal activities are being carried out throught the day like trekking or gardening, etc, which can explain the relatively distributed activity graph.
 
+## Note
+This assignment is an almost exact resubmission of my own assignment from the previous month. I couldn't complete the course last month due to time constraints. 
